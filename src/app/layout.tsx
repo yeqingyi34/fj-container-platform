@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "福建集装箱房 - 住人集装箱出租出售信息平台",
@@ -43,12 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
-        <footer className="bg-gray-800 text-gray-400 text-sm py-8 mt-12">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <p>© 2026 福建集装箱房信息平台 | 整合福建住人集装箱出租出售信息</p>
-            <p className="mt-1">广告合作、商家入驻请联系</p>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );
