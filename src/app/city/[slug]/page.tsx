@@ -17,7 +17,8 @@ export default function CityPage() {
 
   useEffect(() => {
     if (!slug) return;
-    supabase.from('cities').select('*').eq('slug', slug).single().then(({ data }) => {
+    const decodedSlug = decodeURIComponent(slug);
+    supabase.from('cities').select('*').eq('slug', decodedSlug).single().then(({ data }) => {
       if (!data) { setLoading(false); return; }
       setCity(data);
       Promise.all([

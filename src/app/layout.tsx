@@ -39,12 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Link>
               ))}
             </nav>
-            <Link
-              href="/business/login"
-              className="text-sm bg-white text-orange-600 px-3 py-1.5 rounded-lg font-medium hover:bg-orange-50"
-            >
-              商家入驻
-            </Link>
+            <span className="text-sm text-white/80">📞 广告入驻请联系</span>
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>

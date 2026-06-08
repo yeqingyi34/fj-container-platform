@@ -15,9 +15,10 @@ export default function CompanyPage() {
 
   useEffect(() => {
     if (!slug) return;
+    const decodedSlug = decodeURIComponent(slug);
     supabase.from('companies')
       .select('*, city:cities(*), district:districts(*), products(*)')
-      .eq('slug', slug).single()
+      .eq('slug', decodedSlug).single()
       .then(({ data }) => { setCompany(data); setLoading(false); });
   }, [slug]);
 
