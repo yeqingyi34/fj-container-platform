@@ -11,7 +11,6 @@ export default function CityPage() {
   const params = useParams();
   const slug = params.slug as string;
   const [city, setCity] = useState<any>(null);
-  const [districts, setDistricts] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,14 +20,16 @@ export default function CityPage() {
     supabase.from('cities').select('*').eq('slug', decodedSlug).single().then(({ data }) => {
       if (!data) { setLoading(false); return; }
       setCity(data);
-      Promise.all([
-        supabase.from('districts').select('*').eq('city_id', data.id),
-        supabase.from('companies').select('*, district:districts(*)').eq('city_id', data.id).order('is_premium', { ascending: false }).limit(20),
-      ]).then(([dRes, cRes]) => {
-        setDistricts(dRes.data || []);
-        setCompanies(cRes.data || []);
-        setLoading(false);
-      });
+      supabase.from('companies')
+        .select('*, district:districts(*)')
+        .eq('city_id', data.id)
+        .order('is_premium', { ascending: false })
+        .order('view_count', { ascending: false })
+        .limit(50)
+        .then(({ data: cData }) => {
+          setCompanies(cData || []);
+          setLoading(false);
+        });
     });
   }, [slug]);
 
@@ -39,22 +40,9 @@ export default function CityPage() {
     <div>
       <div className="bg-gradient-to-r from-orange-500 to-red-500 -mx-4 -mt-6 px-4 py-8 text-white mb-6">
         <h1 className="text-2xl font-bold">{city.name}</h1>
-        <p className="text-orange-100 mt-1">住人集装箱出租出售信息 · {districts.length}个区域</p>
+        <p className="text-orange-100 mt-1">住人集装箱出租出售信息 · {companies.length}家公司</p>
       </div>
-      {districts.length > 0 && (
-        <>
-          <h2 className="text-lg font-bold text-gray-900 mb-3">📌 选择区域</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            {districts.map((d: any) => (
-              <Link key={d.id} href={`/search?city=${slug}`}
-                className="bg-white rounded-lg p-4 text-center hover:shadow-md border text-sm font-medium text-gray-700">
-                📍 {d.name}
-              </Link>
-            ))}
-          </div>
-        </>
-      )}
-      <h2 className="text-lg font-bold text-gray-900 mb-3">🏢 {city.name}公司 ({companies.length}家)</h2>
+      
       {companies.length === 0 ? (
         <p className="text-center text-gray-400 py-8">暂无公司数据</p>
       ) : (
@@ -65,12 +53,13 @@ export default function CityPage() {
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold">{c.name}
                   {c.verified && <CheckCircle className="w-3 h-3 inline ml-1 text-blue-500" />}
+                  {c.is_premium && <span className="ml-1 text-orange-500 text-xs bg-orange-50 px-1.5 py-0.5 rounded">推荐</span>}
                 </h3>
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   c.business_type === 'rent' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'
                 }`}>{typeLabels[c.business_type] || c.business_type}</span>
               </div>
-              <p className="text-sm text-gray-500"><MapPin className="w-3 h-3 inline" /> {c.district?.name} {c.address}</p>
+              <p className="text-sm text-gray-500"><MapPin className="w-3 h-3 inline" /> {c.address}</p>
               <p className="text-sm text-gray-600 mt-1 line-clamp-2">{c.description}</p>
               <p className="text-sm text-gray-400 mt-2"><Phone className="w-3 h-3 inline" /> {c.phone}</p>
             </Link>
