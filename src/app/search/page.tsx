@@ -20,25 +20,30 @@ function SearchContent() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<any[]>([]);
+  const [citiesLoaded, setCitiesLoaded] = useState(false);
 
   useEffect(() => {
-    supabase.from('cities').select('*').order('sort_order').then(({ data }) => setCities(data || []));
+    supabase.from('cities').select('*').order('sort_order').then(({ data }) => {
+      setCities(data || []);
+      setCitiesLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
+    if (!citiesLoaded) return;
     setLoading(true);
     let q = supabase.from('companies').select('*, city:cities(*), district:districts(*)');
-    
+
     if (query) q = q.ilike('name', `%${query}%`);
     if (city) {
       const cityId = cities.find(c => c.slug === city)?.id;
       if (cityId) q = q.eq('city_id', cityId);
     }
     if (type !== 'all') q = q.or(`business_type.eq.${type},business_type.eq.both`);
-    
+
     q = q.order('is_premium', { ascending: false }).limit(50);
     q.then(({ data }) => { setResults(data || []); setLoading(false); });
-  }, [query, city, type, cities]);
+  }, [query, city, type, citiesLoaded]);
 
   return (
     <div>
