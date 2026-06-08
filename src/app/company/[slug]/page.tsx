@@ -1,19 +1,28 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+'use client';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { MapPin, Phone, CheckCircle, Package } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const typeLabels: Record<string, string> = { rent: '出租', sale: '出售', both: '出租+出售' };
 const priceLabels: Record<string, string> = { daily: '天', monthly: '月', sale: '个' };
 
-export default async function CompanyPage({ params }: { params: { slug: string } }) {
-  const { data: company } = await supabase
-    .from('companies')
-    .select('*, city:cities(*), district:districts(*), products(*)')
-    .eq('slug', params.slug)
-    .single();
+export default function CompanyPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const [company, setCompany] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!company) notFound();
+  useEffect(() => {
+    if (!slug) return;
+    supabase.from('companies')
+      .select('*, city:cities(*), district:districts(*), products(*)')
+      .eq('slug', slug).single()
+      .then(({ data }) => { setCompany(data); setLoading(false); });
+  }, [slug]);
+
+  if (loading) return <div className="text-center py-20 text-gray-400">加载中...</div>;
+  if (!company) return <div className="text-center py-20 text-gray-400">公司不存在</div>;
 
   return (
     <div>
@@ -32,9 +41,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
             company.business_type === 'rent' ? 'bg-blue-50 text-blue-600' :
             company.business_type === 'sale' ? 'bg-green-50 text-green-600' :
             'bg-purple-50 text-purple-600'
-          }`}>
-            {typeLabels[company.business_type]}
-          </span>
+          }`}>{typeLabels[company.business_type]}</span>
         </div>
         <div className="flex gap-4 mt-4 pt-4 border-t">
           <div className="bg-orange-50 rounded-lg px-4 py-2 text-center">
@@ -79,7 +86,6 @@ export default async function CompanyPage({ params }: { params: { slug: string }
             </div>
           )}
         </div>
-
         <div className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="font-bold text-gray-900 mb-3">公司简介</h3>

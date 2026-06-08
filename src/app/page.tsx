@@ -1,12 +1,13 @@
+'use client';
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { SearchIcon, MapPin, Phone, Star, CheckCircle } from "lucide-react";
-import { getCities, getCompanies } from "@/lib/supabase";
+import { SearchIcon, MapPin, Phone, CheckCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const cityEmojis: Record<string, string> = {
   fuzhou: '🏠', xiamen: '🌊', quanzhou: '⛵', zhangzhou: '🌴',
   putian: '👟', longyan: '⛰️', sanming: '🌿', nanping: '🏔️', ningde: '⚡'
 };
-
 const typeLabels: Record<string, string> = { rent: '出租', sale: '出售', both: '出租+出售' };
 const typeColors: Record<string, string> = {
   rent: 'bg-blue-50 text-blue-600', sale: 'bg-green-50 text-green-600', both: 'bg-purple-50 text-purple-600'
@@ -41,20 +42,32 @@ function CompanyCard({ c }: { c: any }) {
   );
 }
 
-export default async function Home() {
-  const [cities, premiumCompanies, latestCompanies] = await Promise.all([
-    getCities(),
-    getCompanies({ premium: true, limit: 4 }),
-    getCompanies({ limit: 6 }),
-  ]);
+export default function Home() {
+  const [cities, setCities] = useState<any[]>([]);
+  const [premiumCompanies, setPremiumCompanies] = useState<any[]>([]);
+  const [latestCompanies, setLatestCompanies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      supabase.from('cities').select('*').order('sort_order'),
+      supabase.from('companies').select('*, city:cities(*), district:districts(*)').eq('is_premium', true).limit(4),
+      supabase.from('companies').select('*, city:cities(*), district:districts(*)').order('view_count', { ascending: false }).limit(6),
+    ]).then(([cRes, pRes, lRes]) => {
+      setCities(cRes.data || []);
+      setPremiumCompanies(pRes.data || []);
+      setLatestCompanies(lRes.data || []);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="text-center py-20 text-gray-400">加载中...</div>;
 
   return (
     <div>
-      {/* Hero */}
       <div className="bg-gradient-to-br from-orange-500 to-red-600 -mx-4 -mt-6 px-4 py-12 text-white text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">找福建住人集装箱，上这里就够了</h1>
         <p className="text-orange-100 mb-6 text-lg">整合全省集装箱房出租出售信息 · 免费查找 · 直接联系</p>
-        
         <form action="/search" className="max-w-2xl mx-auto flex gap-2">
           <select name="city" className="px-4 py-3 rounded-lg text-gray-900 bg-white w-32 text-sm">
             <option value="">全部城市</option>
@@ -66,8 +79,7 @@ export default async function Home() {
             <option value="sale">出售</option>
           </select>
           <div className="flex-1 relative">
-            <input name="q" type="text" placeholder="搜索公司名称..." 
-              className="w-full px-4 py-3 rounded-lg text-gray-900 pr-10" />
+            <input name="q" type="text" placeholder="搜索公司名称..." className="w-full px-4 py-3 rounded-lg text-gray-900 pr-10" />
             <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-orange-600 text-white p-2 rounded-lg hover:bg-orange-700">
               <SearchIcon className="w-5 h-5" />
             </button>
@@ -75,7 +87,6 @@ export default async function Home() {
         </form>
       </div>
 
-      {/* Cities */}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-gray-900 mb-4">🏙️ 按城市查找</h2>
         <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
@@ -89,7 +100,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Premium companies */}
       {premiumCompanies.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xl font-bold text-gray-900 mb-4">⭐ 推荐公司</h2>
@@ -99,7 +109,6 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Latest companies */}
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-4">📋 全部公司</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
