@@ -66,8 +66,8 @@ export default function Home() {
   return (
     <div>
       <div className="bg-gradient-to-br from-orange-500 to-red-600 -mx-4 -mt-6 px-4 py-12 text-white text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">找福建住人集装箱，上这里就够了</h1>
-        <p className="text-orange-100 mb-6 text-lg">整合全省{latestCompanies.length}+家集装箱房公司信息 · 覆盖9市 · 免费查找 · 直接联系</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-3">中国住人集装箱信息网</h1>
+        <p className="text-orange-100 mb-6 text-lg">整合全国{latestCompanies.length}+家集装箱房公司 · 覆盖34省 · 免费查找 · 直接联系</p>
         <form action="/search" className="max-w-2xl mx-auto flex gap-2">
           <select name="city" className="px-4 py-3 rounded-lg text-gray-900 bg-white w-32 text-sm">
             <option value="">全部城市</option>
@@ -88,8 +88,8 @@ export default function Home() {
       </div>
 
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">🏙️ 按城市查找</h2>
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">🗺️ 按省份查找</h2>
+        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {cities.map((c: any) => (
             <Link key={c.slug} href={`/city/${c.slug}`}
               className="bg-white rounded-xl p-4 text-center hover:shadow-md transition-shadow border border-gray-100">

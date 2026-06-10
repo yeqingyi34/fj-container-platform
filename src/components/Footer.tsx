@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-800 text-gray-400 text-sm py-8 mt-12">
       <div className="max-w-7xl mx-auto px-4 text-center">
-        <p>© 2026 福建集装箱房信息平台 | 整合福建住人集装箱出租出售信息</p>
+        <p>© 2026 中国住人集装箱信息网 | 整合全国住人集装箱出租出售信息 · 覆盖34省</p>
         <p className="mt-1">
           <button
             onClick={() => setShowQR(!showQR)}
