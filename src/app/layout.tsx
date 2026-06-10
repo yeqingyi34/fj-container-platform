@@ -8,13 +8,12 @@ export const metadata: Metadata = {
     default: "中国住人集装箱信息网 - 全国住人集装箱出租出售信息平台",
     template: "%s | 中国住人集装箱信息网"
   },
-  description: "中国住人集装箱信息网整合全国各省住人集装箱出租、出售公司信息，覆盖34个省份，免费查找、直接联系。找集装箱房，上这里就够了。",
-  keywords: ["住人集装箱","集装箱出租","集装箱出售","集装箱房","活动房","移动板房","工地宿舍","全国集装箱","集装箱厂家"],
+  description: "中国住人集装箱信息网整合全国各省住人集装箱出租、出售公司信息，覆盖34个省份，免费查找、直接联系。",
+  keywords: ["住人集装箱","集装箱出租","集装箱出售","集装箱房","活动房","移动板房","工地宿舍","全国集装箱"],
   openGraph: {
-    title: "中国住人集装箱信息网 - 全国住人集装箱出租出售信息平台",
+    title: "中国住人集装箱信息网",
     description: "整合全国住人集装箱出租出售信息，覆盖34省。免费查找，直接联系。",
-    type: "website",
-    locale: "zh_CN",
+    type: "website", locale: "zh_CN",
   }
 };
 
@@ -27,7 +26,7 @@ const provinces = [
   { name: "安徽", slug: "anhui" }, { name: "江西", slug: "jiangxi" },
   { name: "辽宁", slug: "liaoning" }, { name: "陕西", slug: "shaanxi" },
   { name: "北京", slug: "beijing" }, { name: "上海", slug: "shanghai" },
-  { name: "天津", slug: "tianjin" }, { name: "重庆", slug: "chongqing" },
+  { name: "全国", slug: "all" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -36,21 +35,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-gray-50">
         <header className="bg-orange-600 text-white shadow-lg sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold tracking-wide">
+            <Link href="/" className="text-lg md:text-xl font-bold tracking-wide whitespace-nowrap">
               🏗️ 中国住人集装箱信息网
             </Link>
-            <nav className="hidden md:flex gap-1 text-sm">
-              {provinces.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/city/${c.slug}`}
-                  className="px-2 py-1 rounded hover:bg-orange-500 transition-colors"
-                >
-                  {c.name}
-                </Link>
-              ))}
+            <nav className="hidden lg:flex gap-0.5 text-xs">
+              {provinces.map((c) => {
+                if (c.slug === 'all') {
+                  return (
+                    <Link key={c.slug} href="/search" className="px-1.5 py-1 rounded hover:bg-orange-500 whitespace-nowrap">{c.name}</Link>
+                  );
+                }
+                return (
+                  <Link key={c.slug} href={`/province/${c.slug}`} className="px-1.5 py-1 rounded hover:bg-orange-500 whitespace-nowrap">
+                    {c.name}
+                  </Link>
+                );
+              })}
             </nav>
-            <span className="text-sm text-white/80">📞 广告入驻请联系</span>
+            <Link href="/search" className="text-sm bg-white text-orange-600 px-3 py-1.5 rounded-lg font-medium hover:bg-orange-50">
+              🔍 搜索
+            </Link>
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
