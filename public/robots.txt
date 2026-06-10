@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://dd-construction-project.com/sitemap.xml
+Sitemap: https://fj-container.vercel.app/sitemap.xml
