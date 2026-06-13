@@ -1,5 +1,3 @@
-'use client';
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { SearchIcon, MapPin, Phone, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -21,29 +19,18 @@ const typeColors: Record<string, string> = {
   rent: 'bg-blue-50 text-blue-600', sale: 'bg-green-50 text-green-600', both: 'bg-purple-50 text-purple-600'
 };
 
-export default function Home() {
-  const [provinces, setProvinces] = useState<any[]>([]);
-  const [premiumCompanies, setPremiumCompanies] = useState<any[]>([]);
-  const [latestCompanies, setLatestCompanies] = useState<any[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+export default async function Home() {
+  const [pRes, premRes, latestRes, countRes] = await Promise.all([
+    supabase.from('provinces').select('*').order('sort_order'),
+    supabase.from('companies').select('*, city:cities(*), province:provinces(*)').eq('is_premium', true).limit(4),
+    supabase.from('companies').select('*, city:cities(*), province:provinces(*)').order('view_count', { ascending: false }).limit(8),
+    supabase.from('companies').select('id', { count: 'exact', head: true }),
+  ]);
 
-  useEffect(() => {
-    Promise.all([
-      supabase.from('provinces').select('*').order('sort_order'),
-      supabase.from('companies').select('*, city:cities(*), province:provinces(*)').eq('is_premium', true).limit(4),
-      supabase.from('companies').select('*, city:cities(*), province:provinces(*)').order('view_count', { ascending: false }).limit(8),
-      supabase.from('companies').select('id', { count: 'exact', head: true }),
-    ]).then(([pRes, premRes, latestRes, countRes]) => {
-      setProvinces(pRes.data || []);
-      setPremiumCompanies(premRes.data || []);
-      setLatestCompanies(latestRes.data || []);
-      setTotalCount(countRes.count || 0);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) return <div className="text-center py-20 text-gray-400">加载中...</div>;
+  const provinces = pRes.data || [];
+  const premiumCompanies = premRes.data || [];
+  const latestCompanies = latestRes.data || [];
+  const totalCount = countRes.count || 0;
 
   return (
     <div>
